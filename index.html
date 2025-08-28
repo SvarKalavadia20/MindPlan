@@ -1,0 +1,128 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>TaskFlow - Modern Todo App</title>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <div class="container">
+        <header class="header">
+            <h1><i class="fas fa-tasks"></i> TaskFlow</h1>
+            <p>Organize your life, one task at a time</p>
+        </header>
+
+        <div class="stats-container">
+            <div class="stat-card">
+                <div class="stat-number" id="totalTasks">0</div>
+                <div class="stat-label">Total Tasks</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-number" id="completedTasks">0</div>
+                <div class="stat-label">Completed</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-number" id="pendingTasks">0</div>
+                <div class="stat-label">Pending</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-number" id="completionRate">0%</div>
+                <div class="stat-label">Completion Rate</div>
+            </div>
+        </div>
+
+        <div class="input-container">
+            <div class="form-tabs">
+                <button class="tab-btn active" data-tab="task">
+                    <i class="fas fa-tasks"></i>
+                    Add Task
+                </button>
+                <button class="tab-btn" data-tab="reminder">
+                    <i class="fas fa-bell"></i>
+                    Add Reminder
+                </button>
+            </div>
+            
+            <div class="input-form active" id="taskForm">
+                <div class="input-wrapper">
+                    <div class="input-row">
+                        <input type="text" id="taskInput" class="input-field" placeholder="What needs to be done today?" maxlength="200">
+                        <div class="date-picker-container">
+                            <input type="date" id="taskDeadline" class="date-input">
+                            <button type="button" class="date-btn" id="taskDateBtn" title="Set deadline (optional)">
+                                <i class="fas fa-calendar"></i>
+                            </button>
+                            <div class="selected-date" id="taskSelectedDate">No deadline</div>
+                        </div>
+                    </div>
+                    <button class="add-btn" id="addTaskBtn">
+                        <i class="fas fa-plus"></i>
+                        Add Task
+                    </button>
+                </div>
+            </div>
+            
+            <div class="input-form" id="reminderForm">
+                <div class="input-wrapper">
+                    <div class="input-row">
+                        <input type="text" id="reminderInput" class="input-field" placeholder="What do you want to be reminded about?" maxlength="200">
+                        <div class="date-picker-container">
+                            <input type="date" id="reminderDate" class="date-input">
+                            <button type="button" class="date-btn" id="reminderDateBtn" title="Set reminder date">
+                                <i class="fas fa-calendar"></i>
+                            </button>
+                            <div class="selected-date" id="reminderSelectedDate">Select date</div>
+                        </div>
+                    </div>
+                    <button class="add-btn" id="addReminderBtn">
+                        <i class="fas fa-bell"></i>
+                        Add Reminder
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <div class="main-content">
+            <div class="section">
+                <div class="section-header">
+                    <i class="fas fa-tasks section-icon"></i>
+                    <h2 class="section-title">Tasks</h2>
+                </div>
+                
+                <div class="filter-container">
+                    <button class="filter-btn active" data-filter="all">All</button>
+                    <button class="filter-btn" data-filter="pending">Pending</button>
+                    <button class="filter-btn" data-filter="completed">Completed</button>
+                </div>
+
+                <div class="todos-container" id="tasksContainer">
+                    <div class="empty-state" id="tasksEmptyState">
+                        <i class="fas fa-clipboard-list"></i>
+                        <h3>No tasks yet</h3>
+                        <p>Add your first task above to get started!</p>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="section">
+                <div class="section-header">
+                    <i class="fas fa-bell section-icon"></i>
+                    <h2 class="section-title">Reminders</h2>
+                </div>
+                
+                <div class="todos-container" id="remindersContainer">
+                    <div class="empty-state" id="remindersEmptyState">
+                        <i class="fas fa-bell-slash"></i>
+                        <h3>No reminders set</h3>
+                        <p>Add reminders for important dates and events!</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="script.js"></script>
+</body>
+</html>
