@@ -44,6 +44,86 @@ class TodoApp {
 
             }
 
+  // ADD THIS NEW METHOD to your TodoApp class:
+setupDatePickers() {
+    // Detect if device is iOS
+    const isIOS = /iPad|iPhone|iPod/.test(navigator.userAgent) || 
+                  (navigator.platform === 'MacIntel' && navigator.maxTouchPoints > 1);
+    
+    if (isIOS) {
+        // iOS-specific setup
+        this.setupIOSDatePicker('task');
+        this.setupIOSDatePicker('reminder');
+    } else {
+        // Desktop/Android setup
+        this.setupDesktopDatePicker('task');
+        this.setupDesktopDatePicker('reminder');
+    }
+}
+
+// ADD THIS NEW METHOD to your TodoApp class:
+setupIOSDatePicker(type) {
+    const dateInput = type === 'task' ? this.taskDeadline : this.reminderDate;
+    const dateBtn = type === 'task' ? this.taskDateBtn : this.reminderDateBtn;
+    const selectedDate = type === 'task' ? this.taskSelectedDate : this.reminderSelectedDate;
+    
+    // Make the date input visible and clickable on iOS
+    dateInput.style.opacity = '1';
+    dateInput.style.position = 'absolute';
+    dateInput.style.top = '0';
+    dateInput.style.left = '0';
+    dateInput.style.width = '100%';
+    dateInput.style.height = '100%';
+    dateInput.style.zIndex = '10';
+    dateInput.style.cursor = 'pointer';
+    
+    // Style the container for better iOS interaction
+    const container = dateBtn.parentElement;
+    container.style.position = 'relative';
+    container.style.overflow = 'hidden';
+    
+    // Handle date changes
+    dateInput.addEventListener('change', () => this.updateSelectedDate(type));
+    
+    // Make the button container clickable
+    dateBtn.addEventListener('click', (e) => {
+        e.preventDefault();
+        dateInput.focus();
+        dateInput.click();
+    });
+    
+    // Handle tap on selected date display
+    selectedDate.addEventListener('click', () => {
+        dateInput.focus();
+        dateInput.click();
+    });
+}
+
+// ADD THIS NEW METHOD to your TodoApp class:
+setupDesktopDatePicker(type) {
+    const dateInput = type === 'task' ? this.taskDeadline : this.reminderDate;
+    const dateBtn = type === 'task' ? this.taskDateBtn : this.reminderDateBtn;
+    
+    // Desktop behavior - keep input hidden
+    dateBtn.addEventListener('click', () => {
+        if (dateInput.showPicker) {
+            try {
+                dateInput.showPicker();
+            } catch (error) {
+                // Fallback for browsers that don't support showPicker
+                dateInput.focus();
+                dateInput.click();
+            }
+        } else {
+            dateInput.focus();
+            dateInput.click();
+        }
+    });
+    
+    // Handle date changes
+    dateInput.addEventListener('change', () => this.updateSelectedDate(type));
+}          
+
   setupAuth() {
     const loginBtn = document.getElementById("loginBtn");
     const logoutBtn = document.getElementById("logoutBtn");
@@ -126,62 +206,58 @@ class TodoApp {
                 this.reminderDate.min = today;
             }
 
-            bindEvents() {
-                this.addTaskBtn.addEventListener('click', () => this.addTodo());
-                this.addReminderBtn.addEventListener('click', () => this.addReminder());
-                
-                this.taskInput.addEventListener('keypress', (e) => {
-                    if (e.key === 'Enter') this.addTodo();
-                });
-                
-                this.reminderInput.addEventListener('keypress', (e) => {
-                    if (e.key === 'Enter') this.addReminder();
-                });
-                
-                // Date picker button events
-                this.taskDateBtn.addEventListener('click', () => this.taskDeadline.showPicker());
-                this.reminderDateBtn.addEventListener('click', () => this.reminderDate.showPicker());
-                
-                // Date input change events
-                this.taskDeadline.addEventListener('change', () => this.updateSelectedDate('task'));
-                this.reminderDate.addEventListener('change', () => this.updateSelectedDate('reminder'));
-                
-                this.tabBtns.forEach(btn => {
-                    btn.addEventListener('click', (e) => {
-                        this.setActiveTab(e.target.dataset.tab);
-                    });
-                });
-                
-                this.filterBtns.forEach(btn => {
-                    btn.addEventListener('click', (e) => {
-                        this.setFilter(e.target.dataset.filter);
-                    });
-                });
+            // Replace the existing bindEvents() date picker section with this:
+bindEvents() {
+    this.addTaskBtn.addEventListener('click', () => this.addTodo());
+    this.addReminderBtn.addEventListener('click', () => this.addReminder());
+    
+    this.taskInput.addEventListener('keypress', (e) => {
+        if (e.key === 'Enter') this.addTodo();
+    });
+    
+    this.reminderInput.addEventListener('keypress', (e) => {
+        if (e.key === 'Enter') this.addReminder();
+    });
+    
+    // iOS COMPATIBLE DATE PICKER HANDLERS
+    this.setupDatePickers();
+    
+    this.tabBtns.forEach(btn => {
+        btn.addEventListener('click', (e) => {
+            this.setActiveTab(e.target.dataset.tab);
+        });
+    });
+    
+    this.filterBtns.forEach(btn => {
+        btn.addEventListener('click', (e) => {
+            this.setFilter(e.target.dataset.filter);
+        });
+    });
 
-                this.tasksContainer.addEventListener('click', (e) => this.handleTaskAction(e));
-                this.remindersContainer.addEventListener('click', (e) => this.handleReminderAction(e));
-                
-                this.tasksContainer.addEventListener('change', (e) => {
-                    if (e.target.type === 'checkbox') {
-                        const id = parseInt(e.target.closest('.todo-item').dataset.id);
-                        this.toggleTodo(id);
-                    }
-                });
+    this.tasksContainer.addEventListener('click', (e) => this.handleTaskAction(e));
+    this.remindersContainer.addEventListener('click', (e) => this.handleReminderAction(e));
+    
+    this.tasksContainer.addEventListener('change', (e) => {
+        if (e.target.type === 'checkbox') {
+            const id = parseInt(e.target.closest('.todo-item').dataset.id);
+            this.toggleTodo(id);
+        }
+    });
 
-                this.tasksContainer.addEventListener('keypress', (e) => {
-                    if (e.key === 'Enter' && e.target.matches('.edit-input')) {
-                        const id = parseInt(e.target.closest('.todo-item').dataset.id);
-                        this.saveTodo(id);
-                    }
-                });
-                
-                this.remindersContainer.addEventListener('keypress', (e) => {
-                    if (e.key === 'Enter' && e.target.matches('.edit-input')) {
-                        const id = parseInt(e.target.closest('.todo-item').dataset.id);
-                        this.saveReminder(id);
-                    }
-                });
-            }
+    this.tasksContainer.addEventListener('keypress', (e) => {
+        if (e.key === 'Enter' && e.target.matches('.edit-input')) {
+            const id = parseInt(e.target.closest('.todo-item').dataset.id);
+            this.saveTodo(id);
+        }
+    });
+    
+    this.remindersContainer.addEventListener('keypress', (e) => {
+        if (e.key === 'Enter' && e.target.matches('.edit-input')) {
+            const id = parseInt(e.target.closest('.todo-item').dataset.id);
+            this.saveReminder(id);
+        }
+    });
+}
 
             updateSelectedDate(type) {
                 if (type === 'task') {
