@@ -5,6 +5,10 @@
             box-sizing: border-box;
         }
 
+       body::-webkit-scrollbar {
+           display: none; /* For Chrome, Edge, Safari */
+       }
+
         body {
             font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
             background: linear-gradient(135deg, #1e1e2e 0%, #2a2a3e 100%);
