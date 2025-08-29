@@ -1181,20 +1181,35 @@ body {
 /* Mobile Optimizations */
 @media (max-width: 768px) {
     /* Auth controls repositioning */
-    #authControls {
-        position: static;
-        display: flex;
-        justify-content: center;
-        flex-wrap: wrap;
-        margin-top: 15px;
-        gap: 10px;
-    }
+   #authControls {
+    position: static !important; /* Override absolute positioning */
+    top: auto !important;
+    right: auto !important;
+    display: flex;
+    justify-content: center;
+    flex-wrap: wrap;
+    margin-top: 15px; /* Space below tagline */
+    gap: 10px;
+    width: 100%;
+  }
     
     #authControls button {
-        font-size: 0.85rem;
-        padding: 10px 16px;
-        border-radius: 12px;
-    }
+    background: rgba(255, 255, 255, 0.05);
+    backdrop-filter: blur(20px);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    border-radius: 15px;
+    padding: 12px 20px;
+    color: #e5e5e5;
+    font-size: 0.85rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    position: relative;
+    overflow: hidden;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
     
     /* Date picker mobile layout */
     .input-row {
