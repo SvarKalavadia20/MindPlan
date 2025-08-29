@@ -184,59 +184,74 @@
         }
 
         .date-picker-container {
-            position: relative;
-            display: flex;
-            align-items: center;
-        }
+    position: relative;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+}
 
-        .date-input {
-            position: absolute;
-            opacity: 0;
-            pointer-events: none;
-        }
+.date-input {
+    position: absolute;
+    opacity: 0;
+    pointer-events: none;
+    width: 100%;
+    height: 100%;
+    top: 0;
+    left: 0;
+}
 
-        .date-btn {
-            width: 50px;
-            height: 50px;
-            background: rgba(255, 255, 255, 0.05);
-            border: 1px solid rgba(255, 255, 255, 0.2);
-            border-radius: 8px;
-            color: #667eea;
-            font-size: 1.2rem;
-            cursor: pointer;
-            transition: all 0.3s ease;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-        }
+.date-btn {
+    width: 50px;
+    height: 50px;
+    background: rgba(255, 255, 255, 0.05);
+    border: 1px solid rgba(255, 255, 255, 0.2);
+    border-radius: 8px;
+    color: #667eea;
+    font-size: 1.2rem;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    position: relative;
+    z-index: 5;
+}
 
-        .date-btn:hover {
-            background: rgba(102, 126, 234, 0.1);
-            border-color: #667eea;
-            transform: translateY(-2px);
-        }
+.date-btn:hover {
+    background: rgba(102, 126, 234, 0.1);
+    border-color: #667eea;
+    transform: translateY(-2px);
+}
 
-        .date-btn.has-date {
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-            color: white;
-            border-color: #667eea;
-        }
+.date-btn.has-date {
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    color: white;
+    border-color: #667eea;
+}
 
-        .selected-date {
-            margin-left: 15px;
-            font-size: 0.9rem;
-            color: #a0a0a0;
-            text-align: center;
-            padding: 8px 15px;
-            background: rgba(255, 255, 255, 0.05);
-            border-radius: 8px;
-            min-width: 120px;
-        }
+.selected-date {
+    font-size: 0.9rem;
+    color: #a0a0a0;
+    text-align: center;
+    padding: 8px 15px;
+    background: rgba(255, 255, 255, 0.05);
+    border-radius: 8px;
+    min-width: 120px;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    position: relative;
+    z-index: 5;
+}
 
-        .selected-date.has-date {
-            color: #667eea;
-            background: rgba(102, 126, 234, 0.1);
-        }
+.selected-date:hover {
+    background: rgba(102, 126, 234, 0.1);
+    border-color: rgba(102, 126, 234, 0.3);
+}
+
+.selected-date.has-date {
+    color: #667eea;
+    background: rgba(102, 126, 234, 0.1);
+}
 
         .add-btn {
             background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
@@ -690,19 +705,69 @@ body {
   
   /* Auth controls repositioning */
   #authControls {
-    position: static;
+    position: absolute;
+    top: 20px;
+    right: 20px;
     display: flex;
-    justify-content: center;
-    flex-wrap: wrap;
-    margin-top: 15px;
     gap: 10px;
-  }
-  
-  #authControls button {
-    font-size: 0.85rem;
-    padding: 10px 16px;
-    border-radius: 6px;
-  }
+    z-index: 100;
+}
+
+#authControls button {
+    background: rgba(255, 255, 255, 0.05);
+    backdrop-filter: blur(20px);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    border-radius: 15px;
+    padding: 12px 20px;
+    color: #e5e5e5;
+    font-size: 0.9rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    position: relative;
+    overflow: hidden;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+#authControls button::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: -100%;
+    width: 100%;
+    height: 100%;
+    background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.1), transparent);
+    transition: left 0.5s ease;
+}
+
+#authControls button:hover::before {
+    left: 100%;
+}
+
+#authControls button:hover {
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    color: white;
+    transform: translateY(-2px);
+    box-shadow: 0 5px 20px rgba(102, 126, 234, 0.4);
+    border-color: rgba(102, 126, 234, 0.5);
+}
+
+#authControls button:active {
+    transform: translateY(0);
+}
+
+/* Add icons to auth buttons */
+#loginBtn::before {
+    content: "🔐";
+    margin-right: 4px;
+}
+
+#logoutBtn::before {
+    content: "🚪";
+    margin-right: 4px;
+}
   
   /* Stats grid adjustment */
   .stats-container {
@@ -1058,4 +1123,170 @@ body {
   .custom-checkbox .checkmark {
     border-width: 3px;
   }
+}
+
+@supports (-webkit-touch-callout: none) {
+    /* iOS Safari detection */
+    .date-picker-container {
+        position: relative;
+        min-height: 50px;
+        border-radius: 8px;
+        overflow: visible;
+    }
+    
+    /* Make date input interactive on iOS while preserving design */
+    .date-input {
+        position: absolute !important;
+        top: 0 !important;
+        left: 0 !important;
+        width: 100% !important;
+        height: 100% !important;
+        opacity: 0.01 !important;
+        z-index: 15 !important;
+        cursor: pointer !important;
+        border-radius: 8px;
+        -webkit-appearance: none;
+        background: transparent;
+        border: none;
+        font-size: 16px;
+        pointer-events: all !important;
+    }
+    
+    /* Ensure calendar icon stays visible */
+    .date-btn {
+        position: relative;
+        pointer-events: none; /* Let clicks pass through to date input */
+        z-index: 10;
+    }
+    
+    .date-btn i {
+        pointer-events: none;
+    }
+    
+    /* Make selected date clickable on iOS */
+    .selected-date {
+        pointer-events: none; /* Let clicks pass through to date input */
+        z-index: 10;
+    }
+    
+    /* Improve date picker visibility when focused */
+    .date-input:focus {
+        opacity: 0.1 !important;
+        background: rgba(102, 126, 234, 0.1);
+        border: 2px solid #667eea;
+        border-radius: 8px;
+    }
+}
+
+/* Mobile Optimizations */
+@media (max-width: 768px) {
+    /* Auth controls repositioning */
+    #authControls {
+        position: static;
+        display: flex;
+        justify-content: center;
+        flex-wrap: wrap;
+        margin-top: 15px;
+        gap: 10px;
+    }
+    
+    #authControls button {
+        font-size: 0.85rem;
+        padding: 10px 16px;
+        border-radius: 12px;
+    }
+    
+    /* Date picker mobile layout */
+    .input-row {
+        flex-direction: column;
+        gap: 12px;
+        align-items: stretch;
+    }
+    
+    .date-picker-container {
+        flex-direction: row;
+        align-items: center;
+        gap: 12px;
+        justify-content: space-between;
+        padding: 8px;
+        background: rgba(255, 255, 255, 0.05);
+        border-radius: 12px;
+        border: 1px solid rgba(255, 255, 255, 0.1);
+        margin-top: 8px;
+    }
+    
+    .date-btn {
+        flex-shrink: 0;
+        width: 50px;
+        height: 50px;
+    }
+    
+    .selected-date {
+        flex: 1;
+        min-width: unset;
+        font-size: 0.85rem;
+        padding: 10px 12px;
+        margin-left: 0;
+    }
+}
+
+/* Small mobile adjustments */
+@media (max-width: 480px) {
+    #authControls button {
+        font-size: 0.8rem;
+        padding: 8px 14px;
+    }
+    
+    .date-picker-container {
+        flex-direction: column;
+        align-items: stretch;
+        gap: 8px;
+        padding: 12px;
+    }
+    
+    .selected-date {
+        width: 100%;
+        padding: 12px;
+        text-align: center;
+    }
+    
+    .date-btn {
+        align-self: center;
+        margin-bottom: 4px;
+    }
+}
+
+/* Enhanced date picker interaction feedback */
+.date-picker-container:hover .date-btn:not(.has-date) {
+    color: #764ba2;
+    border-color: rgba(102, 126, 234, 0.4);
+}
+
+.date-picker-container:hover .selected-date:not(.has-date) {
+    color: #764ba2;
+    background: rgba(102, 126, 234, 0.05);
+}
+
+/* Focus states for accessibility */
+.date-input:focus + .date-btn {
+    outline: 2px solid #667eea;
+    outline-offset: 2px;
+}
+
+/* High contrast mode support */
+@media (prefers-contrast: high) {
+    .date-btn, .selected-date, #authControls button {
+        border-width: 2px;
+    }
+}
+
+/* Reduced motion support */
+@media (prefers-reduced-motion: reduce) {
+    .date-btn, .selected-date, #authControls button {
+        transition: none;
+    }
+    
+    #authControls button::before {
+        display: none;
+    }
 }
