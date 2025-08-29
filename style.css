@@ -785,11 +785,13 @@
     gap: 15px;
   }
   .section {
-  width: 100%;
+  width: auto;
   max-width: 100%;
   margin: 0 auto;
   padding: 12px;
   box-sizing: border-box; /* ✅ include padding inside width */
+  overflow-x: hidden;
+
 
 }
   .section-title {
@@ -832,9 +834,10 @@
   gap: 10px;
 }
 
-.todo-item:hover {
-        transform: none; /* Prevents the item from shifting and causing overflow */
-    }
+.container,
+.main-content {
+  overflow-x: hidden;
+}
 
 }
 
