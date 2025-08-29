@@ -832,6 +832,10 @@
   gap: 10px;
 }
 
+.todo-item:hover {
+        transform: none; /* Prevents the item from shifting and causing overflow */
+    }
+
 }
 
 /* Smaller phones */
