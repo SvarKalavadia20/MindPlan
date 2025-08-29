@@ -78,35 +78,32 @@ setupIOSDatePicker(type) {
     dateInput.style.zIndex = '15';
     dateInput.style.cursor = 'pointer';
     
-    // Style the container for better iOS interaction
-    const container = dateBtn.parentElement;
+    // Ensure the container is positioned relative
     container.style.position = 'relative';
-    container.style.overflow = 'hidden';
     
     // Handle date changes
     dateInput.addEventListener('change', () => this.updateSelectedDate(type));
     
-    // Make the button container clickable
-    dateBtn.addEventListener('click', (e) => {
-        e.preventDefault();
-        dateInput.focus();
-        dateInput.click();
+    // Optional: Add visual feedback when the input is focused
+    dateInput.addEventListener('focus', () => {
+        container.style.outline = '2px solid #667eea';
+        container.style.outlineOffset = '2px';
     });
     
-    // Handle tap on selected date display
-    selectedDate.addEventListener('click', () => {
-        dateInput.focus();
-        dateInput.click();
+    dateInput.addEventListener('blur', () => {
+        container.style.outline = 'none';
     });
+}
 }
 
 // ADD THIS NEW METHOD to your TodoApp class:
 setupDesktopDatePicker(type) {
     const dateInput = type === 'task' ? this.taskDeadline : this.reminderDate;
     const dateBtn = type === 'task' ? this.taskDateBtn : this.reminderDateBtn;
+    const selectedDate = type === 'task' ? this.taskSelectedDate : this.reminderSelectedDate;
     
-    // Desktop behavior - keep input hidden
-    dateBtn.addEventListener('click', () => {
+    // Desktop behavior - both button and selected date trigger picker
+    const triggerDatePicker = () => {
         if (dateInput.showPicker) {
             try {
                 dateInput.showPicker();
@@ -119,11 +116,14 @@ setupDesktopDatePicker(type) {
             dateInput.focus();
             dateInput.click();
         }
-    });
+    };
+    
+    dateBtn.addEventListener('click', triggerDatePicker);
+    selectedDate.addEventListener('click', triggerDatePicker);
     
     // Handle date changes
     dateInput.addEventListener('change', () => this.updateSelectedDate(type));
-}          
+}         
 
   setupAuth() {
     const loginBtn = document.getElementById("loginBtn");
