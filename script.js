@@ -66,15 +66,16 @@ setupIOSDatePicker(type) {
     const dateInput = type === 'task' ? this.taskDeadline : this.reminderDate;
     const dateBtn = type === 'task' ? this.taskDateBtn : this.reminderDateBtn;
     const selectedDate = type === 'task' ? this.taskSelectedDate : this.reminderSelectedDate;
+    const container = dateBtn.parentElement;
     
-    // Make the date input visible and clickable on iOS
-    dateInput.style.opacity = '1';
+    // Position the invisible date input over the entire container
     dateInput.style.position = 'absolute';
     dateInput.style.top = '0';
     dateInput.style.left = '0';
     dateInput.style.width = '100%';
     dateInput.style.height = '100%';
-    dateInput.style.zIndex = '10';
+    dateInput.style.opacity = '0.01';
+    dateInput.style.zIndex = '15';
     dateInput.style.cursor = 'pointer';
     
     // Style the container for better iOS interaction
