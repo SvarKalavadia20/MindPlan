@@ -859,11 +859,6 @@ body {
     gap: 10px;
 }
 
-.input-wrapper,
-.todo-item {
-    overflow: visible !important;
-}
-
 /* Scroll Spy Styles */
 .scroll-spy {
     position: fixed;
@@ -1083,6 +1078,7 @@ body {
         padding: 16px;
         box-sizing: border-box;
         border-radius: 20px;
+        z-index: 9000;
     }
     
     .section-header {
