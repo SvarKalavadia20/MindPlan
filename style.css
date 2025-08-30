@@ -1295,6 +1295,7 @@ body {
     
     .section {
         padding: 14px;
+        margin-top: 70px;
     }
     
     .todo-item, .reminder-item {
