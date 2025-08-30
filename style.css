@@ -1270,6 +1270,10 @@ body {
         padding: 12px 16px;
         font-size: 0.95rem;
     }
+
+    .date-trigger {
+        width: 100%
+    }
     
     .section {
         padding: 14px;
