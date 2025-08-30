@@ -909,12 +909,7 @@ class TodoApp {
                                             </div>
                                             <div class="days-grid edit-days-grid"></div>
                                         </div>
-                                        <div class="quick-select">
-                                            <button class="quick-btn" data-days="0">Today</button>
-                                            <button class="quick-btn" data-days="1">Tomorrow</button>
-                                            <button class="quick-btn" data-days="7">Week</button>
-                                            <button class="quick-btn" data-clear="true">Clear</button>
-                                        </div>
+                                        
                                     </div>
                                 </div>
                             </div>
@@ -1020,12 +1015,7 @@ class TodoApp {
                                             </div>
                                             <div class="days-grid"></div>
                                         </div>
-                                        <div class="quick-select">
-                                            <button class="quick-btn" data-days="0">Today</button>
-                                            <button class="quick-btn" data-days="1">Tomorrow</button>
-                                            <button class="quick-btn" data-days="7">Week</button>
-                                            <button class="quick-btn" data-clear="true">Clear</button>
-                                        </div>
+                                        
                                     </div>
                                 </div>
                             </div>
