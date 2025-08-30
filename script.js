@@ -21,6 +21,245 @@ const appFB = initializeApp(firebaseConfig);
 const auth = getAuth(appFB);
 const db = getFirestore(appFB);
 
+/* ========= CUSTOM DATE PICKER CLASS ========= */
+
+class CustomDatePicker {
+    constructor(containerId, options = {}) {
+        this.container = document.getElementById(containerId);
+        this.options = {
+            allowPast: options.allowPast || false,
+            placeholder: options.placeholder || 'Select date',
+            required: options.required || false,
+            ...options
+        };
+        
+        this.selectedDate = null;
+        this.currentDate = new Date();
+        this.viewDate = new Date();
+        this.isOpen = false;
+        
+        this.initializeElements();
+        this.bindEvents();
+        this.render();
+    }
+    
+    initializeElements() {
+        this.trigger = this.container.querySelector('.date-trigger');
+        this.dateText = this.container.querySelector('.date-text');
+        this.dropdownArrow = this.container.querySelector('.dropdown-arrow');
+        this.calendar = this.container.querySelector('.calendar-dropdown');
+        this.monthYear = this.container.querySelector('.month-year');
+        this.prevBtn = this.container.querySelector('.nav-btn:first-child');
+        this.nextBtn = this.container.querySelector('.nav-btn:last-child');
+        this.daysGrid = this.container.querySelector('.days-grid');
+        this.quickBtns = this.container.querySelectorAll('.quick-btn');
+        
+        // Set placeholder text
+        this.dateText.textContent = this.options.placeholder;
+    }
+    
+    bindEvents() {
+        // Toggle calendar
+        this.trigger.addEventListener('click', (e) => {
+            e.stopPropagation();
+            this.toggle();
+        });
+        
+        // Navigation
+        this.prevBtn.addEventListener('click', (e) => {
+            e.stopPropagation();
+            this.previousMonth();
+        });
+        this.nextBtn.addEventListener('click', (e) => {
+            e.stopPropagation();
+            this.nextMonth();
+        });
+        
+        // Quick select buttons
+        this.quickBtns.forEach(btn => {
+            btn.addEventListener('click', (e) => {
+                e.stopPropagation();
+                if (btn.dataset.clear) {
+                    this.clearDate();
+                } else {
+                    const days = parseInt(btn.dataset.days);
+                    const date = new Date();
+                    date.setDate(date.getDate() + days);
+                    this.selectDate(date);
+                }
+            });
+        });
+        
+        // Close on outside click
+        document.addEventListener('click', (e) => {
+            if (!this.container.contains(e.target)) {
+                this.close();
+            }
+        });
+        
+        // Close on escape
+        document.addEventListener('keydown', (e) => {
+            if (e.key === 'Escape') {
+                this.close();
+            }
+        });
+    }
+    
+    toggle() {
+        if (this.isOpen) {
+            this.close();
+        } else {
+            this.open();
+        }
+    }
+    
+    open() {
+        // Close any other open calendars
+        document.querySelectorAll('.calendar-dropdown.show').forEach(cal => {
+            if (cal !== this.calendar) {
+                cal.classList.remove('show');
+                const arrow = cal.parentElement.querySelector('.dropdown-arrow');
+                if (arrow) arrow.classList.remove('open');
+            }
+        });
+        
+        this.isOpen = true;
+        this.calendar.classList.add('show');
+        this.dropdownArrow.classList.add('open');
+        this.render();
+    }
+    
+    close() {
+        this.isOpen = false;
+        this.calendar.classList.remove('show');
+        this.dropdownArrow.classList.remove('open');
+    }
+    
+    previousMonth() {
+        this.viewDate.setMonth(this.viewDate.getMonth() - 1);
+        this.render();
+    }
+    
+    nextMonth() {
+        this.viewDate.setMonth(this.viewDate.getMonth() + 1);
+        this.render();
+    }
+    
+    selectDate(date) {
+        this.selectedDate = new Date(date);
+        this.updateDisplay();
+        this.close();
+        
+        // Dispatch custom event
+        this.container.dispatchEvent(new CustomEvent('dateselect', {
+            detail: { date: new Date(date) }
+        }));
+    }
+    
+    clearDate() {
+        this.selectedDate = null;
+        this.updateDisplay();
+        this.close();
+        
+        // Dispatch custom event
+        this.container.dispatchEvent(new CustomEvent('dateclear'));
+    }
+    
+    updateDisplay() {
+        if (this.selectedDate) {
+            this.dateText.textContent = this.formatDate(this.selectedDate);
+            this.dateText.classList.remove('placeholder');
+            this.trigger.classList.add('has-date');
+        } else {
+            this.dateText.textContent = this.options.placeholder;
+            this.dateText.classList.add('placeholder');
+            this.trigger.classList.remove('has-date');
+        }
+    }
+    
+    formatDate(date) {
+        return date.toLocaleDateString('en-US', {
+            year: 'numeric',
+            month: 'short',
+            day: 'numeric'
+        });
+    }
+    
+    render() {
+        // Update month/year display
+        this.monthYear.textContent = this.viewDate.toLocaleDateString('en-US', {
+            year: 'numeric',
+            month: 'long'
+        });
+        
+        // Clear days grid
+        this.daysGrid.innerHTML = '';
+        
+        // Get first day of month and number of days
+        const year = this.viewDate.getFullYear();
+        const month = this.viewDate.getMonth();
+        const firstDay = new Date(year, month, 1);
+        const lastDay = new Date(year, month + 1, 0);
+        const startDate = new Date(firstDay);
+        startDate.setDate(startDate.getDate() - firstDay.getDay());
+        
+        const today = new Date();
+        today.setHours(0, 0, 0, 0);
+        
+        // Generate 42 days (6 weeks)
+        for (let i = 0; i < 42; i++) {
+            const currentDate = new Date(startDate);
+            currentDate.setDate(startDate.getDate() + i);
+            
+            const dayElement = document.createElement('div');
+            dayElement.classList.add('day');
+            dayElement.textContent = currentDate.getDate();
+            
+            // Add classes
+            if (currentDate.getMonth() !== month) {
+                dayElement.classList.add('other-month');
+            }
+            
+            if (currentDate.getTime() === today.getTime()) {
+                dayElement.classList.add('today');
+            }
+            
+            if (this.selectedDate && currentDate.getTime() === this.selectedDate.getTime()) {
+                dayElement.classList.add('selected');
+            }
+            
+            // Disable past dates if not allowed
+            if (!this.options.allowPast && currentDate < today) {
+                dayElement.classList.add('disabled');
+            } else {
+                // Fixed: Properly bind click events to day elements
+                dayElement.addEventListener('click', (e) => {
+                    e.stopPropagation();
+                    this.selectDate(currentDate);
+                });
+            }
+            
+            this.daysGrid.appendChild(dayElement);
+        }
+    }
+    
+    // Public API
+    getValue() {
+        return this.selectedDate ? this.selectedDate.toISOString().split('T')[0] : null;
+    }
+    
+    setValue(dateString) {
+        if (dateString) {
+            this.selectedDate = new Date(dateString + 'T00:00:00');
+            this.viewDate = new Date(this.selectedDate);
+        } else {
+            this.selectedDate = null;
+        }
+        this.updateDisplay();
+        this.render();
+    }
+}
+
 /* ========= MAIN TODO APP ========= */
 
 class TodoApp {
@@ -32,11 +271,17 @@ class TodoApp {
         this.editingType = null;
         this.activeTab = 'task';
         this.user = null; //logged-in user 
+        
+        // Custom date picker properties
+        this.selectedTaskDate = null;
+        this.selectedReminderDate = null;
+        this.taskDatePicker = null;
+        this.reminderDatePicker = null;
 
         this.initializeElements();
         this.bindEvents();
         this.render();
-        this.setMinDate();
+        this.initCustomDatePickers();
         this.setupAuth();
     }
 
@@ -92,12 +337,6 @@ class TodoApp {
     initializeElements() {
         this.taskInput = document.getElementById('taskInput');
         this.reminderInput = document.getElementById('reminderInput');
-        this.taskDeadline = document.getElementById('taskDeadline');
-        this.reminderDate = document.getElementById('reminderDate');
-        this.taskDateBtn = document.getElementById('taskDateBtn');
-        this.reminderDateBtn = document.getElementById('reminderDateBtn');
-        this.taskSelectedDate = document.getElementById('taskSelectedDate');
-        this.reminderSelectedDate = document.getElementById('reminderSelectedDate');
         this.addTaskBtn = document.getElementById('addTaskBtn');
         this.addReminderBtn = document.getElementById('addReminderBtn');
         this.tasksContainer = document.getElementById('tasksContainer');
@@ -115,10 +354,82 @@ class TodoApp {
         };
     }
 
-    setMinDate() {
-        const today = new Date().toISOString().split('T')[0];
-        this.taskDeadline.min = today;
-        this.reminderDate.min = today;
+    initCustomDatePickers() {
+        // Initialize custom date pickers
+        this.taskDatePicker = new CustomDatePicker('taskDatePicker', {
+            allowPast: false,
+            placeholder: 'Select deadline (optional)',
+            required: false
+        });
+        
+        this.reminderDatePicker = new CustomDatePicker('reminderDatePicker', {
+            allowPast: false,
+            placeholder: 'Select reminder date',
+            required: true
+        });
+        
+        // Event listeners for date selection
+        document.getElementById('taskDatePicker').addEventListener('dateselect', (e) => {
+            this.selectedTaskDate = e.detail.date.toISOString().split('T')[0];
+        });
+        
+        document.getElementById('taskDatePicker').addEventListener('dateclear', () => {
+            this.selectedTaskDate = null;
+        });
+        
+        document.getElementById('reminderDatePicker').addEventListener('dateselect', (e) => {
+            this.selectedReminderDate = e.detail.date.toISOString().split('T')[0];
+        });
+        
+        document.getElementById('reminderDatePicker').addEventListener('dateclear', () => {
+            this.selectedReminderDate = null;
+        });
+    }
+
+    initEditDatePicker(containerId, currentDate = null) {
+        setTimeout(() => {
+            const container = document.getElementById(containerId);
+            if (!container) return;
+
+            const editPicker = new CustomDatePicker(containerId, {
+                allowPast: false,
+                placeholder: 'No deadline',
+                required: false
+            });
+
+            if (currentDate) {
+                editPicker.setValue(currentDate);
+            }
+
+            // Store reference for saving
+            container.addEventListener('dateselect', (e) => {
+                const id = parseInt(container.closest('.todo-item').dataset.id);
+                if (this.editingType === 'task') {
+                    const todo = this.todos.find(t => t.id === id);
+                    if (todo) todo.deadline = e.detail.date.toISOString().split('T')[0];
+                } else if (this.editingType === 'reminder') {
+                    const reminder = this.reminders.find(r => r.id === id);
+                    if (reminder) reminder.date = e.detail.date.toISOString().split('T')[0];
+                }
+            });
+
+            container.addEventListener('dateclear', () => {
+                const id = parseInt(container.closest('.todo-item').dataset.id);
+                if (this.editingType === 'task') {
+                    const todo = this.todos.find(t => t.id === id);
+                    if (todo) todo.deadline = null;
+                }
+            });
+        }, 100);
+    }
+
+    formatDateForDisplay(dateString) {
+        const date = new Date(dateString + 'T00:00:00');
+        return date.toLocaleDateString('en-US', {
+            year: 'numeric',
+            month: 'short',
+            day: 'numeric'
+        });
     }
 
     bindEvents() {
@@ -132,9 +443,6 @@ class TodoApp {
         this.reminderInput.addEventListener('keypress', (e) => {
             if (e.key === 'Enter') this.addReminder();
         });
-        
-        // iOS COMPATIBLE DATE PICKER HANDLERS
-        this.setupDatePickers();
         
         this.tabBtns.forEach(btn => {
             btn.addEventListener('click', (e) => {
@@ -170,118 +478,6 @@ class TodoApp {
                 const id = parseInt(e.target.closest('.todo-item').dataset.id);
                 this.saveReminder(id);
             }
-        });
-    }
-
-    setupDatePickers() {
-        // Detect if device is iOS
-        const isIOS = /iPad|iPhone|iPod/.test(navigator.userAgent) || 
-                      (navigator.platform === 'MacIntel' && navigator.maxTouchPoints > 1);
-        
-        if (isIOS) {
-            // iOS-specific setup
-            this.setupIOSDatePicker('task');
-            this.setupIOSDatePicker('reminder');
-        } else {
-            // Desktop/Android setup
-            this.setupDesktopDatePicker('task');
-            this.setupDesktopDatePicker('reminder');
-        }
-    }
-
-    setupIOSDatePicker(type) {
-        const dateInput = type === 'task' ? this.taskDeadline : this.reminderDate;
-        const dateBtn = type === 'task' ? this.taskDateBtn : this.reminderDateBtn;
-        const selectedDate = type === 'task' ? this.taskSelectedDate : this.reminderSelectedDate;
-        const container = dateBtn.parentElement;
-        
-        // Position the invisible date input over the entire container
-        dateInput.style.position = 'absolute';
-        dateInput.style.top = '0';
-        dateInput.style.left = '0';
-        dateInput.style.width = '100%';
-        dateInput.style.height = '100%';
-        dateInput.style.opacity = '0.01';
-        dateInput.style.zIndex = '15';
-        dateInput.style.cursor = 'pointer';
-        
-        // Ensure the container is positioned relative
-        container.style.position = 'relative';
-        
-        // Handle date changes
-        dateInput.addEventListener('change', () => this.updateSelectedDate(type));
-        
-        // Optional: Add visual feedback when the input is focused
-        dateInput.addEventListener('focus', () => {
-            container.style.outline = '2px solid #667eea';
-            container.style.outlineOffset = '2px';
-        });
-        
-        dateInput.addEventListener('blur', () => {
-            container.style.outline = 'none';
-        });
-    }
-
-    setupDesktopDatePicker(type) {
-        const dateInput = type === 'task' ? this.taskDeadline : this.reminderDate;
-        const dateBtn = type === 'task' ? this.taskDateBtn : this.reminderDateBtn;
-        const selectedDate = type === 'task' ? this.taskSelectedDate : this.reminderSelectedDate;
-        
-        // Desktop behavior - both button and selected date trigger picker
-        const triggerDatePicker = () => {
-            if (dateInput.showPicker) {
-                try {
-                    dateInput.showPicker();
-                } catch (error) {
-                    // Fallback for browsers that don't support showPicker
-                    dateInput.focus();
-                    dateInput.click();
-                }
-            } else {
-                dateInput.focus();
-                dateInput.click();
-            }
-        };
-        
-        dateBtn.addEventListener('click', triggerDatePicker);
-        selectedDate.addEventListener('click', triggerDatePicker);
-        
-        // Handle date changes
-        dateInput.addEventListener('change', () => this.updateSelectedDate(type));
-    }
-
-    updateSelectedDate(type) {
-        if (type === 'task') {
-            const value = this.taskDeadline.value;
-            if (value) {
-                this.taskSelectedDate.textContent = this.formatDateDisplay(value);
-                this.taskSelectedDate.classList.add('has-date');
-                this.taskDateBtn.classList.add('has-date');
-            } else {
-                this.taskSelectedDate.textContent = 'No deadline';
-                this.taskSelectedDate.classList.remove('has-date');
-                this.taskDateBtn.classList.remove('has-date');
-            }
-        } else if (type === 'reminder') {
-            const value = this.reminderDate.value;
-            if (value) {
-                this.reminderSelectedDate.textContent = this.formatDateDisplay(value);
-                this.reminderSelectedDate.classList.add('has-date');
-                this.reminderDateBtn.classList.add('has-date');
-            } else {
-                this.reminderSelectedDate.textContent = 'Select date';
-                this.reminderSelectedDate.classList.remove('has-date');
-                this.reminderDateBtn.classList.remove('has-date');
-            }
-        }
-    }
-
-    formatDateDisplay(dateString) {
-        const date = new Date(dateString + 'T00:00:00');
-        return date.toLocaleDateString('en-US', {
-            month: 'short',
-            day: 'numeric',
-            year: 'numeric'
         });
     }
 
@@ -327,22 +523,22 @@ class TodoApp {
             id: Date.now(),
             text: text,
             completed: false,
-            deadline: this.taskDeadline.value || null,
+            deadline: this.selectedTaskDate || null,
             createdAt: new Date().toISOString(),
             type: 'task'
         };
 
         this.todos.push(todo);
         this.taskInput.value = '';
-        this.taskDeadline.value = '';
-        this.updateSelectedDate('task');
+        this.taskDatePicker.clearDate();
+        this.selectedTaskDate = null;
         this.render();
         this.saveData();
     }
 
     addReminder() {
         const text = this.reminderInput.value.trim();
-        const date = this.reminderDate.value;
+        const date = this.selectedReminderDate;
         
         if (!text || !date) return;
 
@@ -356,8 +552,8 @@ class TodoApp {
 
         this.reminders.push(reminder);
         this.reminderInput.value = '';
-        this.reminderDate.value = '';
-        this.updateSelectedDate('reminder');
+        this.reminderDatePicker.clearDate();
+        this.selectedReminderDate = null;
         this.render();
         this.saveData();
     }
@@ -441,7 +637,6 @@ class TodoApp {
     saveTodo(id) {
         const todoItem = this.tasksContainer.querySelector(`[data-id="${id}"]`);
         const editInput = todoItem.querySelector('.edit-input');
-        const editDeadline = todoItem.querySelector('.edit-date-input');
         const newText = editInput.value.trim();
         
         if (!newText) return;
@@ -449,7 +644,7 @@ class TodoApp {
         const todo = this.todos.find(t => t.id === id);
         if (todo) {
             todo.text = newText;
-            todo.deadline = editDeadline ? editDeadline.value || null : todo.deadline;
+            // deadline is already updated by the edit date picker event
             this.editingId = null;
             this.editingType = null;
             this.render();
@@ -460,16 +655,14 @@ class TodoApp {
     saveReminder(id) {
         const reminderItem = this.remindersContainer.querySelector(`[data-id="${id}"]`);
         const editInput = reminderItem.querySelector('.edit-input');
-        const editDate = reminderItem.querySelector('.edit-date-input');
         const newText = editInput.value.trim();
-        const newDate = editDate.value;
         
-        if (!newText || !newDate) return;
+        if (!newText) return;
 
         const reminder = this.reminders.find(r => r.id === id);
         if (reminder) {
             reminder.text = newText;
-            reminder.date = newDate;
+            // date is already updated by the edit date picker event
             this.editingId = null;
             this.editingType = null;
             this.render();
@@ -591,7 +784,38 @@ class TodoApp {
                         <div class="todo-content">
                             <input type="text" class="edit-input" value="${todo.text}" maxlength="200">
                             <div class="edit-date-picker">
-                                <input type="date" class="edit-date-input" value="${todo.deadline || ''}" min="${new Date().toISOString().split('T')[0]}">
+                                <div class="edit-custom-date-picker" id="editTaskDatePicker-${todo.id}">
+                                    <div class="edit-date-trigger">
+                                        <i class="fas fa-calendar-alt date-icon"></i>
+                                        <span class="edit-date-text ${todo.deadline ? '' : 'placeholder'}">${todo.deadline ? this.formatDateForDisplay(todo.deadline) : 'No deadline'}</span>
+                                        <i class="fas fa-chevron-down edit-dropdown-arrow"></i>
+                                    </div>
+                                    <div class="edit-calendar-dropdown">
+                                        <div class="calendar-header">
+                                            <button class="nav-btn edit-prev-btn"><i class="fas fa-chevron-left"></i></button>
+                                            <span class="month-year edit-month-year"></span>
+                                            <button class="nav-btn edit-next-btn"><i class="fas fa-chevron-right"></i></button>
+                                        </div>
+                                        <div class="calendar-grid">
+                                            <div class="weekdays">
+                                                <div class="weekday">Sun</div>
+                                                <div class="weekday">Mon</div>
+                                                <div class="weekday">Tue</div>
+                                                <div class="weekday">Wed</div>
+                                                <div class="weekday">Thu</div>
+                                                <div class="weekday">Fri</div>
+                                                <div class="weekday">Sat</div>
+                                            </div>
+                                            <div class="days-grid edit-days-grid"></div>
+                                        </div>
+                                        <div class="quick-select">
+                                            <button class="quick-btn" data-days="0">Today</button>
+                                            <button class="quick-btn" data-days="1">Tomorrow</button>
+                                            <button class="quick-btn" data-days="7">Week</button>
+                                            <button class="quick-btn" data-clear="true">Clear</button>
+                                        </div>
+                                    </div>
+                                </div>
                             </div>
                         </div>
                         <div class="todo-actions">
@@ -600,6 +824,9 @@ class TodoApp {
                             </button>
                             <button class="action-btn cancel-btn" title="Cancel">
                                 <i class="fas fa-times"></i>
+                            </button>
+                            <button class="action-btn delete-btn" title="Delete">
+                                <i class="fas fa-trash"></i>
                             </button>
                         </div>
                     ` : `
@@ -625,12 +852,17 @@ class TodoApp {
             `;
         }).join('');
 
-        // Focus on edit input if editing
+        // Initialize edit date picker if editing
         if (this.editingId && this.editingType === 'task') {
             const editInput = this.tasksContainer.querySelector('.edit-input');
             if (editInput) {
                 editInput.focus();
                 editInput.select();
+            }
+            
+            const todo = this.todos.find(t => t.id === this.editingId);
+            if (todo) {
+                this.initEditDatePicker(`editTaskDatePicker-${todo.id}`, todo.deadline);
             }
         }
     }
@@ -663,7 +895,38 @@ class TodoApp {
                         <div class="todo-content">
                             <input type="text" class="edit-input" value="${reminder.text}" maxlength="200">
                             <div class="edit-date-picker">
-                                <input type="date" class="edit-date-input" value="${reminder.date}" min="${new Date().toISOString().split('T')[0]}" required>
+                                <div class="edit-custom-date-picker" id="editReminderDatePicker-${reminder.id}">
+                                    <div class="edit-date-trigger">
+                                        <i class="fas fa-bell date-icon"></i>
+                                        <span class="edit-date-text">${this.formatDateForDisplay(reminder.date)}</span>
+                                        <i class="fas fa-chevron-down edit-dropdown-arrow"></i>
+                                    </div>
+                                    <div class="edit-calendar-dropdown">
+                                        <div class="calendar-header">
+                                            <button class="nav-btn"><i class="fas fa-chevron-left"></i></button>
+                                            <span class="month-year"></span>
+                                            <button class="nav-btn"><i class="fas fa-chevron-right"></i></button>
+                                        </div>
+                                        <div class="calendar-grid">
+                                            <div class="weekdays">
+                                                <div class="weekday">Sun</div>
+                                                <div class="weekday">Mon</div>
+                                                <div class="weekday">Tue</div>
+                                                <div class="weekday">Wed</div>
+                                                <div class="weekday">Thu</div>
+                                                <div class="weekday">Fri</div>
+                                                <div class="weekday">Sat</div>
+                                            </div>
+                                            <div class="days-grid"></div>
+                                        </div>
+                                        <div class="quick-select">
+                                            <button class="quick-btn" data-days="0">Today</button>
+                                            <button class="quick-btn" data-days="1">Tomorrow</button>
+                                            <button class="quick-btn" data-days="7">Week</button>
+                                            <button class="quick-btn" data-clear="true">Clear</button>
+                                        </div>
+                                    </div>
+                                </div>
                             </div>
                         </div>
                         <div class="todo-actions">
@@ -695,12 +958,17 @@ class TodoApp {
             `;
         }).join('');
 
-        // Focus on edit input if editing
+        // Initialize edit date picker if editing
         if (this.editingId && this.editingType === 'reminder') {
             const editInput = this.remindersContainer.querySelector('.edit-input');
             if (editInput) {
                 editInput.focus();
                 editInput.select();
+            }
+            
+            const reminder = this.reminders.find(r => r.id === this.editingId);
+            if (reminder) {
+                this.initEditDatePicker(`editReminderDatePicker-${reminder.id}`, reminder.date);
             }
         }
     }
@@ -720,7 +988,7 @@ document.addEventListener('DOMContentLoaded', () => {
 // Add some visual enhancements
 document.addEventListener('mousemove', (e) => {
     const cursor = document.querySelector('.cursor');
-    if (!cursor) {
+    if (!cursor && window.innerWidth > 768) {
         const newCursor = document.createElement('div');
         newCursor.className = 'cursor';
         newCursor.style.cssText = `
@@ -737,8 +1005,10 @@ document.addEventListener('mousemove', (e) => {
     }
     
     const cursorElement = document.querySelector('.cursor');
-    cursorElement.style.left = e.clientX - 10 + 'px';
-    cursorElement.style.top = e.clientY - 10 + 'px';
+    if (cursorElement) {
+        cursorElement.style.left = e.clientX - 10 + 'px';
+        cursorElement.style.top = e.clientY - 10 + 'px';
+    }
 });
 
 // ===== Scroll Spy =====
@@ -751,30 +1021,4 @@ if (progressBar) {
         const scrollPercent = (scrollTop / docHeight) * 100;
         progressBar.style.height = scrollPercent + "%";
     });
-}
-
-// Cursor circle animation (only if element exists)
-const circle = document.getElementById("cursorCircle");
-if (circle) {
-    let mouseX = 0, mouseY = 0;
-    let circleX = 0, circleY = 0;
-    
-    const hotspotX = 16;
-    const hotspotY = 16;
-    
-    document.addEventListener("mousemove", (e) => {
-        mouseX = e.clientX + hotspotX;
-        mouseY = e.clientY + hotspotY;
-    });
-    
-    function animate() {
-        circleX += (mouseX - circleX) * 0.1;
-        circleY += (mouseY - circleY) * 0.1;
-        
-        circle.style.left = circleX + "px";
-        circle.style.top = circleY + "px";
-        
-        requestAnimationFrame(animate);
-    }
-    animate();
 }
