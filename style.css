@@ -720,25 +720,24 @@ body {
 
 /* Edit Calendar Dropdown - Fixed to be opaque */
 .edit-calendar-dropdown {
-    position: absolute;
-    top: 100%;
-    left: 0;
+    position: fixed;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%) scale(0.95);
     width: 300px;
     background: #1e1e2e;
     border: 1px solid rgba(102, 126, 234, 0.3);
     border-radius: 12px;
     box-shadow: 0 10px 25px rgba(0, 0, 0, 0.8);
-    z-index: 1500;
-    margin-top: 5px;
+    z-index: 2000;
     opacity: 0;
-    transform: translateY(-5px) scale(0.95);
-    transition: all 0.3s ease;
     pointer-events: none;
+    transition: all 0.3s ease;
 }
 
 .edit-calendar-dropdown.show {
     opacity: 1;
-    transform: translateY(0) scale(1);
+    transform: translate(-50%, -50%) scale(1);
     pointer-events: all;
 }
 
