@@ -13,11 +13,11 @@
     <div class="container">
         <header class="header">
             <h1><i class="fas fa-tasks"></i> MindPlan</h1>
-            <p>“Turn chaos into clarity”</p>
+            <p>"Turn chaos into clarity"</p>
             <div id="authControls">
-  <button id="loginBtn">Login with Google</button>
-  <button id="logoutBtn" style="display:none;">Logout</button>
-</div>
+                <button id="loginBtn">Login with Google</button>
+                <button id="logoutBtn" style="display:none;">Logout</button>
+            </div>
         </header>
 
         <div class="stats-container">
@@ -55,12 +55,38 @@
                 <div class="input-wrapper">
                     <div class="input-row">
                         <input type="text" id="taskInput" class="input-field" placeholder="What needs to be done today?" maxlength="200">
-                        <div class="date-picker-container">
-                            <input type="date" id="taskDeadline" class="date-input">
-                            <button type="button" class="date-btn" id="taskDateBtn" title="Set deadline (optional)">
-                                <i class="fas fa-calendar"></i>
-                            </button>
-                            <div class="selected-date" id="taskSelectedDate">Select Date</div>
+                        <div class="custom-date-picker" id="taskDatePicker">
+                            <div class="date-trigger" id="taskDateTrigger">
+                                <i class="fas fa-calendar-alt date-icon"></i>
+                                <span class="date-text placeholder" id="taskDateText">Select deadline (optional)</span>
+                                <i class="fas fa-chevron-down dropdown-arrow" id="taskDropdownArrow"></i>
+                            </div>
+                            <div class="calendar-dropdown" id="taskCalendar">
+                                <div class="calendar-header">
+                                    <button class="nav-btn" id="taskPrevBtn"><i class="fas fa-chevron-left"></i></button>
+                                    <span class="month-year" id="taskMonthYear"></span>
+                                    <button class="nav-btn" id="taskNextBtn"><i class="fas fa-chevron-right"></i></button>
+                                </div>
+                                <div class="calendar-grid">
+                                    <div class="weekdays">
+                                        <div class="weekday">Sun</div>
+                                        <div class="weekday">Mon</div>
+                                        <div class="weekday">Tue</div>
+                                        <div class="weekday">Wed</div>
+                                        <div class="weekday">Thu</div>
+                                        <div class="weekday">Fri</div>
+                                        <div class="weekday">Sat</div>
+                                    </div>
+                                    <div class="days-grid" id="taskDaysGrid"></div>
+                                </div>
+                                <div class="quick-select">
+                                    <button class="quick-btn" data-days="0">Today</button>
+                                    <button class="quick-btn" data-days="1">Tomorrow</button>
+                                    <button class="quick-btn" data-days="7">Next Week</button>
+                                    <button class="quick-btn" data-days="30">Next Month</button>
+                                    <button class="quick-btn" data-clear="true">Clear</button>
+                                </div>
+                            </div>
                         </div>
                     </div>
                     <button class="add-btn" id="addTaskBtn">
@@ -74,12 +100,38 @@
                 <div class="input-wrapper">
                     <div class="input-row">
                         <input type="text" id="reminderInput" class="input-field" placeholder="What do you want to be reminded about?" maxlength="200">
-                        <div class="date-picker-container">
-                            <input type="date" id="reminderDate" class="date-input">
-                            <button type="button" class="date-btn" id="reminderDateBtn" title="Set reminder date">
-                                <i class="fas fa-calendar"></i>
-                            </button>
-                            <div class="selected-date" id="reminderSelectedDate">Select Date</div>
+                        <div class="custom-date-picker" id="reminderDatePicker">
+                            <div class="date-trigger" id="reminderDateTrigger">
+                                <i class="fas fa-bell date-icon"></i>
+                                <span class="date-text placeholder" id="reminderDateText">Select reminder date</span>
+                                <i class="fas fa-chevron-down dropdown-arrow" id="reminderDropdownArrow"></i>
+                            </div>
+                            <div class="calendar-dropdown" id="reminderCalendar">
+                                <div class="calendar-header">
+                                    <button class="nav-btn" id="reminderPrevBtn"><i class="fas fa-chevron-left"></i></button>
+                                    <span class="month-year" id="reminderMonthYear"></span>
+                                    <button class="nav-btn" id="reminderNextBtn"><i class="fas fa-chevron-right"></i></button>
+                                </div>
+                                <div class="calendar-grid">
+                                    <div class="weekdays">
+                                        <div class="weekday">Sun</div>
+                                        <div class="weekday">Mon</div>
+                                        <div class="weekday">Tue</div>
+                                        <div class="weekday">Wed</div>
+                                        <div class="weekday">Thu</div>
+                                        <div class="weekday">Fri</div>
+                                        <div class="weekday">Sat</div>
+                                    </div>
+                                    <div class="days-grid" id="reminderDaysGrid"></div>
+                                </div>
+                                <div class="quick-select">
+                                    <button class="quick-btn" data-days="0">Today</button>
+                                    <button class="quick-btn" data-days="1">Tomorrow</button>
+                                    <button class="quick-btn" data-days="7">Next Week</button>
+                                    <button class="quick-btn" data-days="30">Next Month</button>
+                                    <button class="quick-btn" data-clear="true">Clear</button>
+                                </div>
+                            </div>
                         </div>
                     </div>
                     <button class="add-btn" id="addReminderBtn">
@@ -129,12 +181,12 @@
         </div>
     </div>
 
-        <!-- Scroll Spy (right side) -->
-<div class="scroll-spy">
-  <div class="spy-track">
-    <div class="spy-progress"></div>
-  </div>
-</div>
+    <!-- Scroll Spy (right side) -->
+    <div class="scroll-spy">
+        <div class="spy-track">
+            <div class="spy-progress"></div>
+        </div>
+    </div>
 
     <script type="module" src="script.js"></script>
 </body>
