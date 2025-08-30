@@ -243,14 +243,6 @@ body {
     transform: rotate(180deg);
 }
 
-/* Allow calendar to overlap Tasks/Reminders */
-.main-content,
-.section,
-.todos-container {
-    overflow: visible !important;
-}
-
-
 /* Calendar Dropdown - Fixed to be opaque */
 /* Fix desktop calendar clipping */
 .calendar-dropdown {
@@ -263,7 +255,7 @@ body {
     border: 1px solid rgba(102, 126, 234, 0.3);
     border-radius: 15px;
     box-shadow: 0 20px 40px rgba(0, 0, 0, 0.9);
-    z-index: 9999; /* higher than input wrapper */
+    z-index: 2000; /* higher than input wrapper */
     opacity: 0;
     pointer-events: none;
 }
@@ -478,8 +470,6 @@ body {
     border-radius: 25px;
     padding: 25px;
     border: 1px solid rgba(255, 255, 255, 0.05);
-    z-index: 9000;
-
 }
 
 .section-header {
@@ -938,14 +928,6 @@ body {
     background: #555;
     color: #fff;
 }
-
-/* Allow calendar to overlap Tasks/Reminders */
-.main-content,
-.section,
-.todos-container {
-    overflow: visible !important;
-}
-
 
 /* Touch-friendly interactions */
 @media (hover: none) and (pointer: coarse) {
