@@ -243,6 +243,14 @@ body {
     transform: rotate(180deg);
 }
 
+/* Allow calendar to overlap Tasks/Reminders */
+.main-content,
+.section,
+.todos-container {
+    overflow: visible !important;
+}
+
+
 /* Calendar Dropdown - Fixed to be opaque */
 /* Fix desktop calendar clipping */
 .calendar-dropdown {
@@ -930,6 +938,14 @@ body {
     background: #555;
     color: #fff;
 }
+
+/* Allow calendar to overlap Tasks/Reminders */
+.main-content,
+.section,
+.todos-container {
+    overflow: visible !important;
+}
+
 
 /* Touch-friendly interactions */
 @media (hover: none) and (pointer: coarse) {
