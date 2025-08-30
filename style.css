@@ -908,7 +908,7 @@ body {
 
 /* Touch-friendly interactions */
 @media (hover: none) and (pointer: coarse) {
-    .action-btn, .filter-btn, .tab-btn, .add-btn, .date-trigger, .nav-btn,  {
+    .action-btn, .filter-btn, .tab-btn, .add-btn, .date-trigger, .nav-btn {
         min-height: 44px;
         min-width: 44px;
         padding: 12px;
