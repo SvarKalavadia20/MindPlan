@@ -1271,9 +1271,27 @@ body {
         font-size: 0.95rem;
     }
 
-    .date-trigger {
-        width: 100%
-    }
+    /* Keep text + calendar side by side */
+  .input-row {
+    flex-direction: row;
+    align-items: center;
+    gap: 8px;
+  }
+
+  .input-row .input-field {
+    flex: 1; /* take most of the row */
+  }
+
+  .input-row .custom-date-picker {
+    flex-shrink: 0; /* calendar stays compact */
+  }
+
+  /* Add Task button stays full width below */
+  .add-btn {
+    margin-top: 10px;
+    width: 100%;
+    align-self: stretch;
+  }
     
     .section {
         padding: 14px;
