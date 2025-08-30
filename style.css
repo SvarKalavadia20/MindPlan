@@ -255,7 +255,7 @@ body {
     border: 1px solid rgba(102, 126, 234, 0.3);
     border-radius: 15px;
     box-shadow: 0 20px 40px rgba(0, 0, 0, 0.9);
-    z-index: 2000; /* higher than input wrapper */
+    z-index: 9999; /* higher than input wrapper */
     opacity: 0;
     pointer-events: none;
 }
