@@ -470,6 +470,8 @@ body {
     border-radius: 25px;
     padding: 25px;
     border: 1px solid rgba(255, 255, 255, 0.05);
+    z-index: 9000;
+
 }
 
 .section-header {
@@ -1078,7 +1080,6 @@ body {
         padding: 16px;
         box-sizing: border-box;
         border-radius: 20px;
-        z-index: 9000;
     }
     
     .section-header {
