@@ -19,7 +19,7 @@ body {
 
 .container {
     max-width: 900px;
-    margin: 0 auto;
+    margin: 0px 100px;
     padding: 20px;
     min-height: 100vh;
     display: flex;
