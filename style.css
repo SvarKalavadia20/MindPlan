@@ -488,6 +488,7 @@ body {
     transition: all 0.3s ease;
     position: relative;
     animation: slideInUp 0.5s ease-out;
+    overflow: hidden;
 }
 
 .todo-item.overdue {
@@ -546,8 +547,10 @@ body {
     left: -100%;
     width: 100%;
     height: 100%;
-    background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.05), transparent);
+    background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.1), transparent);
     transition: left 0.5s ease;
+    /* Ensure shimmer respects parent boundaries */
+    border-radius: inherit;
 }
 
 .todo-item:hover::before {
