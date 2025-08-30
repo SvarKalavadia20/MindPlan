@@ -859,6 +859,11 @@ body {
     gap: 10px;
 }
 
+.input-wrapper,
+.todo-item {
+    overflow: visible !important;
+}
+
 /* Scroll Spy Styles */
 .scroll-spy {
     position: fixed;
