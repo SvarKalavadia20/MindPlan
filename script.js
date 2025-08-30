@@ -611,14 +611,23 @@ class TodoApp {
         if (!todoItem) return;
         
         const id = parseInt(todoItem.dataset.id);
+        console.log('Task action triggered for ID:', id, 'Action:', e.target.className);
         
         if (e.target.matches('.delete-btn') || e.target.closest('.delete-btn')) {
+            e.preventDefault();
+            e.stopPropagation();
             this.deleteTodo(id);
         } else if (e.target.matches('.edit-btn') || e.target.closest('.edit-btn')) {
+            e.preventDefault();
+            e.stopPropagation();
             this.editTodo(id, 'task');
         } else if (e.target.matches('.save-btn') || e.target.closest('.save-btn')) {
+            e.preventDefault();
+            e.stopPropagation();
             this.saveTodo(id);
         } else if (e.target.matches('.cancel-btn') || e.target.closest('.cancel-btn')) {
+            e.preventDefault();
+            e.stopPropagation();
             this.cancelEdit();
         }
     }
@@ -628,43 +637,82 @@ class TodoApp {
         if (!reminderItem) return;
         
         const id = parseInt(reminderItem.dataset.id);
+        console.log('Reminder action triggered for ID:', id, 'Action:', e.target.className);
         
         if (e.target.matches('.delete-btn') || e.target.closest('.delete-btn')) {
+            e.preventDefault();
+            e.stopPropagation();
             this.deleteReminder(id);
         } else if (e.target.matches('.edit-btn') || e.target.closest('.edit-btn')) {
+            e.preventDefault();
+            e.stopPropagation();
             this.editReminder(id);
         } else if (e.target.matches('.save-btn') || e.target.closest('.save-btn')) {
+            e.preventDefault();
+            e.stopPropagation();
             this.saveReminder(id);
         } else if (e.target.matches('.cancel-btn') || e.target.closest('.cancel-btn')) {
+            e.preventDefault();
+            e.stopPropagation();
             this.cancelEdit();
         }
     }
 
     deleteTodo(id) {
+        console.log('Attempting to delete todo with ID:', id);
+        const todoIndex = this.todos.findIndex(todo => todo.id === id);
+        console.log('Found todo at index:', todoIndex);
+        
+        if (todoIndex === -1) {
+            console.error('Todo not found for deletion');
+            return;
+        }
+        
         const todoElement = this.tasksContainer.querySelector(`[data-id="${id}"]`);
         if (todoElement) {
             todoElement.style.transform = 'translateX(-100%)';
             todoElement.style.opacity = '0';
             
             setTimeout(() => {
-                this.todos = this.todos.filter(todo => todo.id !== id);
+                this.todos.splice(todoIndex, 1); // Use splice instead of filter for better reliability
+                console.log('Todo deleted, remaining todos:', this.todos.length);
                 this.render();
                 this.saveData();
             }, 300);
+        } else {
+            // Fallback: delete immediately if element not found
+            this.todos.splice(todoIndex, 1);
+            this.render();
+            this.saveData();
         }
     }
 
     deleteReminder(id) {
+        console.log('Attempting to delete reminder with ID:', id);
+        const reminderIndex = this.reminders.findIndex(reminder => reminder.id === id);
+        console.log('Found reminder at index:', reminderIndex);
+        
+        if (reminderIndex === -1) {
+            console.error('Reminder not found for deletion');
+            return;
+        }
+        
         const reminderElement = this.remindersContainer.querySelector(`[data-id="${id}"]`);
         if (reminderElement) {
             reminderElement.style.transform = 'translateX(-100%)';
             reminderElement.style.opacity = '0';
             
             setTimeout(() => {
-                this.reminders = this.reminders.filter(reminder => reminder.id !== id);
+                this.reminders.splice(reminderIndex, 1); // Use splice instead of filter for better reliability
+                console.log('Reminder deleted, remaining reminders:', this.reminders.length);
                 this.render();
                 this.saveData();
             }, 300);
+        } else {
+            // Fallback: delete immediately if element not found
+            this.reminders.splice(reminderIndex, 1);
+            this.render();
+            this.saveData();
         }
     }
 
