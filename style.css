@@ -43,6 +43,17 @@ body {
     background-clip: text;
     margin-bottom: 10px;
     animation: fadeInUp 1s ease-out;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 15px;
+}
+
+.logo-icon {
+    width: 48px;
+    height: 48px;
+    flex-shrink: 0;
+    filter: drop-shadow(0 2px 8px rgba(102, 126, 234, 0.3));
 }
 
 .header p {
@@ -939,6 +950,13 @@ body {
     .header h1 {
         font-size: 2.2rem;
         margin-bottom: 8px;
+        flex-direction: column;
+        gap: 10px;
+    }
+
+    .logo-icon {
+        width: 40px;
+        height: 40px;
     }
     
     .header p {
@@ -1233,6 +1251,11 @@ body {
     
     .header h1 {
         font-size: 2.4rem;
+    }
+
+    .logo-icon {
+        width: 36px;
+        height: 36px;
     }
     
     .header p {
