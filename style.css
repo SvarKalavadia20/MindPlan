@@ -32,12 +32,6 @@ body {
     padding: 30px 0;
 }
 
-.logo-icon {
-  height: 3.5rem;       /* adjust size */
-  width: 3.5rem;        /* keep it square */
-  margin-right: 8px; /* space between logo and text */
-  vertical-align: middle; /* align nicely with text */
-}
 
 
 .header h1 {
