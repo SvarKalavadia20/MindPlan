@@ -48,6 +48,9 @@ body {
     background-clip: text;
     margin-bottom: 10px;
     animation: fadeInUp 1s ease-out;
+    display: flex;
+    align-items: center; /* Centers logo and text vertically */
+    justify-content: center;
 }
 
 .header p {
