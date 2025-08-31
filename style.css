@@ -51,6 +51,8 @@ body {
     display: flex;
     align-items: center; /* Centers logo and text vertically */
     justify-content: center;
+    gap: 0.5em; /* Space between logo and text */
+
 }
 
 .header p {
