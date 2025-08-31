@@ -33,9 +33,9 @@ body {
 }
 
 .logo-icon {
-  height: 32px;       /* adjust size */
-  width: 32px;        /* keep it square */
-  margin-right: 10px; /* space between logo and text */
+  height: 3.5rem;       /* adjust size */
+  width: 3.5rem;        /* keep it square */
+  margin-right: 8px; /* space between logo and text */
   vertical-align: middle; /* align nicely with text */
 }
 
