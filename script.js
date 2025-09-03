@@ -168,15 +168,17 @@ class CustomDatePicker {
     }
     
     selectDate(date) {
-        this.selectedDate = new Date(date);
-        this.updateDisplay();
-        this.close();
-        
-        // Dispatch custom event
-        this.container.dispatchEvent(new CustomEvent('dateselect', {
-            detail: { date: new Date(date) }
-        }));
-    }
+    // Ensure we store the date as a consistent string format
+    const localDate = new Date(date.getFullYear(), date.getMonth(), date.getDate());
+    this.selectedDate = localDate;
+    this.updateDisplay();
+    this.close();
+    
+    // Dispatch custom event with consistent date format
+    this.container.dispatchEvent(new CustomEvent('dateselect', {
+        detail: { date: localDate }
+    }));
+}
     
     clearDate() {
         this.selectedDate = null;
@@ -275,19 +277,27 @@ class CustomDatePicker {
     
     // Public API
     getValue() {
-        return this.selectedDate ? this.selectedDate.toISOString().split('T')[0] : null;
-    }
+    if (!this.selectedDate) return null;
+    
+    // Return date in YYYY-MM-DD format in local timezone
+    const year = this.selectedDate.getFullYear();
+    const month = String(this.selectedDate.getMonth() + 1).padStart(2, '0');
+    const day = String(this.selectedDate.getDate()).padStart(2, '0');
+    
+    return `${year}-${month}-${day}`;
+}
     
     setValue(dateString) {
-        if (dateString) {
-            this.selectedDate = new Date(dateString + 'T00:00:00');
-            this.viewDate = new Date(this.selectedDate);
-        } else {
-            this.selectedDate = null;
-        }
-        this.updateDisplay();
-        this.render();
+    if (dateString) {
+        // Parse the date string and create a local date object
+        const [year, month, day] = dateString.split('-').map(Number);
+        this.selectedDate = new Date(year, month - 1, day);
+        this.viewDate = new Date(this.selectedDate);
+    } else {
+        this.selectedDate = null;
     }
+    this.updateDisplay();
+    this.render();
 }
 
 /* ========= MAIN TODO APP ========= */
@@ -460,13 +470,13 @@ class TodoApp {
     }
 
     formatDateForDisplay(dateString) {
-        const date = new Date(dateString + 'T00:00:00');
-        return date.toLocaleDateString('en-US', {
-            year: 'numeric',
-            month: 'short',
-            day: 'numeric'
-        });
-    }
+    const date = new Date(dateString + 'T00:00:00');
+    return date.toLocaleDateString('en-US', {
+        year: 'numeric',
+        month: 'short',
+        day: 'numeric'
+    });
+}
 
     bindEvents() {
         this.addTaskBtn.addEventListener('click', () => this.addTodo());
@@ -540,28 +550,31 @@ class TodoApp {
     }
 
     formatDateTime(dateString) {
-        const date = new Date(dateString + 'T00:00:00');
-        const now = new Date();
-        now.setHours(0, 0, 0, 0);
-        const diffTime = date - now;
-        const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
-        
-        const formatted = date.toLocaleDateString('en-US', {
-            year: 'numeric',
-            month: 'short',
-            day: 'numeric'
-        });
-        
-        if (diffDays < 0) {
-            return { text: `${formatted} (Overdue)`, status: 'overdue' };
-        } else if (diffDays === 0) {
-            return { text: `${formatted} (Today)`, status: 'due-today' };
-        } else if (diffDays <= 3) {
-            return { text: `${formatted} (Due soon)`, status: 'due-soon' };
-        } else {
-            return { text: formatted, status: 'normal' };
-        }
+    // Create date object with explicit time to avoid timezone issues
+    const date = new Date(dateString + 'T00:00:00');
+    const now = new Date();
+    now.setHours(0, 0, 0, 0);
+    
+    // Calculate difference using the same timezone-aware approach
+    const diffTime = date - now;
+    const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
+    
+    const formatted = date.toLocaleDateString('en-US', {
+        year: 'numeric',
+        month: 'short',
+        day: 'numeric'
+    });
+    
+    if (diffDays < 0) {
+        return { text: `${formatted} (Overdue)`, status: 'overdue' };
+    } else if (diffDays === 0) {
+        return { text: `${formatted} (Today)`, status: 'due-today' };
+    } else if (diffDays <= 3) {
+        return { text: `${formatted} (Due soon)`, status: 'due-soon' };
+    } else {
+        return { text: formatted, status: 'normal' };
     }
+}
 
     addTodo() {
         const text = this.taskInput.value.trim();
