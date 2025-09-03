@@ -48,6 +48,30 @@ class CustomDatePicker {
         this.render();
     }
     
+    // Helper function to create local date without timezone issues
+    createLocalDate(year, month, day) {
+        const date = new Date();
+        date.setFullYear(year);
+        date.setMonth(month);
+        date.setDate(day);
+        date.setHours(0, 0, 0, 0);
+        return date;
+    }
+    
+    // Helper function to parse date string as local date
+    parseLocalDate(dateString) {
+        const [year, month, day] = dateString.split('-').map(Number);
+        return this.createLocalDate(year, month - 1, day);
+    }
+    
+    // Helper function to format date as YYYY-MM-DD in local timezone
+    formatAsLocalDateString(date) {
+        const year = date.getFullYear();
+        const month = String(date.getMonth() + 1).padStart(2, '0');
+        const day = String(date.getDate()).padStart(2, '0');
+        return `${year}-${month}-${day}`;
+    }
+    
     initializeElements() {
         this.trigger = this.container.querySelector('.date-trigger, .edit-date-trigger');
         this.dateText = this.container.querySelector('.date-text, .edit-date-text');
@@ -168,17 +192,15 @@ class CustomDatePicker {
     }
     
     selectDate(date) {
-    // Ensure we store the date as a consistent string format
-    const localDate = new Date(date.getFullYear(), date.getMonth(), date.getDate());
-    this.selectedDate = localDate;
-    this.updateDisplay();
-    this.close();
-    
-    // Dispatch custom event with consistent date format
-    this.container.dispatchEvent(new CustomEvent('dateselect', {
-        detail: { date: localDate }
-    }));
-}
+        this.selectedDate = new Date(date);
+        this.updateDisplay();
+        this.close();
+        
+        // Dispatch custom event with properly formatted date
+        this.container.dispatchEvent(new CustomEvent('dateselect', {
+            detail: { date: new Date(date) }
+        }));
+    }
     
     clearDate() {
         this.selectedDate = null;
@@ -230,9 +252,9 @@ class CustomDatePicker {
         // Get first day of month and number of days
         const year = this.viewDate.getFullYear();
         const month = this.viewDate.getMonth();
-        const firstDay = new Date(year, month, 1);
-        const lastDay = new Date(year, month + 1, 0);
-        const startDate = new Date(firstDay);
+        const firstDay = this.createLocalDate(year, month, 1);
+        const lastDay = this.createLocalDate(year, month + 1, 0);
+        const startDate = this.createLocalDate(year, month, 1);
         startDate.setDate(startDate.getDate() - firstDay.getDay());
         
         const today = new Date();
@@ -256,7 +278,7 @@ class CustomDatePicker {
                 dayElement.classList.add('today');
             }
             
-            if (this.selectedDate && currentDate.getTime() === this.selectedDate.getTime()) {
+            if (this.selectedDate && this.areSameDay(currentDate, this.selectedDate)) {
                 dayElement.classList.add('selected');
             }
             
@@ -275,29 +297,28 @@ class CustomDatePicker {
         }
     }
     
+    // Helper function to compare dates without time
+    areSameDay(date1, date2) {
+        return date1.getFullYear() === date2.getFullYear() &&
+               date1.getMonth() === date2.getMonth() &&
+               date1.getDate() === date2.getDate();
+    }
+    
     // Public API
     getValue() {
-    if (!this.selectedDate) return null;
-    
-    // Return date in YYYY-MM-DD format in local timezone
-    const year = this.selectedDate.getFullYear();
-    const month = String(this.selectedDate.getMonth() + 1).padStart(2, '0');
-    const day = String(this.selectedDate.getDate()).padStart(2, '0');
-    
-    return `${year}-${month}-${day}`;
-}
+        return this.selectedDate ? this.formatAsLocalDateString(this.selectedDate) : null;
+    }
     
     setValue(dateString) {
-    if (dateString) {
-        // Parse the date string and create a local date object
-        const [year, month, day] = dateString.split('-').map(Number);
-        this.selectedDate = new Date(year, month - 1, day);
-        this.viewDate = new Date(this.selectedDate);
-    } else {
-        this.selectedDate = null;
+        if (dateString) {
+            this.selectedDate = this.parseLocalDate(dateString);
+            this.viewDate = new Date(this.selectedDate);
+        } else {
+            this.selectedDate = null;
+        }
+        this.updateDisplay();
+        this.render();
     }
-    this.updateDisplay();
-    this.render();
 }
 
 /* ========= MAIN TODO APP ========= */
@@ -324,6 +345,25 @@ class TodoApp {
         this.render();
         this.initCustomDatePickers();
         this.setupAuth();
+    }
+
+    // Helper function to parse date string as local date
+    parseLocalDate(dateString) {
+        const [year, month, day] = dateString.split('-').map(Number);
+        const date = new Date();
+        date.setFullYear(year);
+        date.setMonth(month - 1);
+        date.setDate(day);
+        date.setHours(0, 0, 0, 0);
+        return date;
+    }
+
+    // Helper function to format date as YYYY-MM-DD in local timezone
+    formatAsLocalDateString(date) {
+        const year = date.getFullYear();
+        const month = String(date.getMonth() + 1).padStart(2, '0');
+        const day = String(date.getDate()).padStart(2, '0');
+        return `${year}-${month}-${day}`;
     }
 
     setupAuth() {
@@ -410,7 +450,7 @@ class TodoApp {
         
         // Event listeners for date selection
         document.getElementById('taskDatePicker').addEventListener('dateselect', (e) => {
-            this.selectedTaskDate = e.detail.date.toISOString().split('T')[0];
+            this.selectedTaskDate = this.formatAsLocalDateString(e.detail.date);
         });
         
         document.getElementById('taskDatePicker').addEventListener('dateclear', () => {
@@ -418,7 +458,7 @@ class TodoApp {
         });
         
         document.getElementById('reminderDatePicker').addEventListener('dateselect', (e) => {
-            this.selectedReminderDate = e.detail.date.toISOString().split('T')[0];
+            this.selectedReminderDate = this.formatAsLocalDateString(e.detail.date);
         });
         
         document.getElementById('reminderDatePicker').addEventListener('dateclear', () => {
@@ -453,10 +493,10 @@ class TodoApp {
             container.addEventListener('dateselect', (e) => {
                 if (itemType === 'task') {
                     const todo = this.todos.find(t => t.id === itemId);
-                    if (todo) todo.deadline = e.detail.date.toISOString().split('T')[0];
+                    if (todo) todo.deadline = this.formatAsLocalDateString(e.detail.date);
                 } else if (itemType === 'reminder') {
                     const reminder = this.reminders.find(r => r.id === itemId);
-                    if (reminder) reminder.date = e.detail.date.toISOString().split('T')[0];
+                    if (reminder) reminder.date = this.formatAsLocalDateString(e.detail.date);
                 }
             });
 
@@ -470,13 +510,13 @@ class TodoApp {
     }
 
     formatDateForDisplay(dateString) {
-    const date = new Date(dateString + 'T00:00:00');
-    return date.toLocaleDateString('en-US', {
-        year: 'numeric',
-        month: 'short',
-        day: 'numeric'
-    });
-}
+        const date = this.parseLocalDate(dateString);
+        return date.toLocaleDateString('en-US', {
+            year: 'numeric',
+            month: 'short',
+            day: 'numeric'
+        });
+    }
 
     bindEvents() {
         this.addTaskBtn.addEventListener('click', () => this.addTodo());
@@ -550,31 +590,28 @@ class TodoApp {
     }
 
     formatDateTime(dateString) {
-    // Create date object with explicit time to avoid timezone issues
-    const date = new Date(dateString + 'T00:00:00');
-    const now = new Date();
-    now.setHours(0, 0, 0, 0);
-    
-    // Calculate difference using the same timezone-aware approach
-    const diffTime = date - now;
-    const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
-    
-    const formatted = date.toLocaleDateString('en-US', {
-        year: 'numeric',
-        month: 'short',
-        day: 'numeric'
-    });
-    
-    if (diffDays < 0) {
-        return { text: `${formatted} (Overdue)`, status: 'overdue' };
-    } else if (diffDays === 0) {
-        return { text: `${formatted} (Today)`, status: 'due-today' };
-    } else if (diffDays <= 3) {
-        return { text: `${formatted} (Due soon)`, status: 'due-soon' };
-    } else {
-        return { text: formatted, status: 'normal' };
+        const date = this.parseLocalDate(dateString);
+        const now = new Date();
+        now.setHours(0, 0, 0, 0);
+        const diffTime = date - now;
+        const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
+        
+        const formatted = date.toLocaleDateString('en-US', {
+            year: 'numeric',
+            month: 'short',
+            day: 'numeric'
+        });
+        
+        if (diffDays < 0) {
+            return { text: `${formatted} (Overdue)`, status: 'overdue' };
+        } else if (diffDays === 0) {
+            return { text: `${formatted} (Today)`, status: 'due-today' };
+        } else if (diffDays <= 3) {
+            return { text: `${formatted} (Due soon)`, status: 'due-soon' };
+        } else {
+            return { text: formatted, status: 'normal' };
+        }
     }
-}
 
     addTodo() {
         const text = this.taskInput.value.trim();
@@ -826,7 +863,7 @@ class TodoApp {
         
         return filtered.sort((a, b) => {
             if (a.deadline && b.deadline) {
-                return new Date(a.deadline) - new Date(b.deadline);
+                return this.parseLocalDate(a.deadline) - this.parseLocalDate(b.deadline);
             } else if (a.deadline) {
                 return -1;
             } else if (b.deadline) {
@@ -839,7 +876,7 @@ class TodoApp {
 
     getSortedReminders() {
         return [...this.reminders].sort((a, b) => {
-            return new Date(a.date) - new Date(b.date);
+            return this.parseLocalDate(a.date) - this.parseLocalDate(b.date);
         });
     }
 
