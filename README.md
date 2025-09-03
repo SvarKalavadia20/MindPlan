@@ -1,8 +1,5 @@
 # # MindPlan  
 
-[![Firebase](https://img.shields.io/badge/Firebase-FFCA28?style=flat-square&logo=firebase&logoColor=black)](https://firebase.google.com/)  
-[![JavaScript](https://img.shields.io/badge/JavaScript-F7DF1E?style=flat-square&logo=javascript&logoColor=black)](#)  
-
 MindPlan is a simple yet powerful **task and reminder management web app**. It helps users organize their day with deadlines, reminders, and completion tracking — all synced securely using Firebase.  
 
 ## 🌐 Live Demo  
